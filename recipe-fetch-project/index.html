@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🍽️ Food Recipe Finder</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      backdrop-filter: brightness(0.9);
+    }
+
+    h1 {
+      color: white;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+      margin-bottom: 30px;
+    }
+
+    input, button {
+      padding: 12px 16px;
+      font-size: 16px;
+      margin: 8px;
+      border: none;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.9);
+    }
+
+    input {
+      width: 220px;
+    }
+
+    button {
+      background-color: #ff7043;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e64a19;
+    }
+
+    .recipe-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      margin: 20px 0;
+      width: 80%;
+      max-width: 600px;
+      text-align: left;
+    }
+
+    .recipe-card img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .recipe-card h2 {
+      margin-top: 0;
+    }
+
+    .error {
+      color: white;
+      background-color: rgba(255, 0, 0, 0.6);
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍴 Food Recipe Finder</h1>
+  <input type="text" id="foodInput" placeholder="Enter food name (e.g., pasta)" />
+  <button onclick="getRecipe()">Search Recipe</button>
+  <div id="result"></div>
+
+  <script>
+    function getRecipe() {
+      const food = document.getElementById('foodInput').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "";
+
+      if (!food) {
+        resultDiv.innerHTML = `<p class="error">Please enter a food name.</p>`;
+        return;
+      }
+
+      fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${food}`)
+        .then(response => response.json())
+        .then(data => {
+          const meals = data.meals;
+
+          if (meals && meals.length > 0) {
+            let recipeHTML = "";
+
+            meals.forEach(meal => {
+              recipeHTML += `
+                <div class="recipe-card">
+                  <h2>${meal.strMeal}</h2>
+                  <img src="${meal.strMealThumb}" alt="${meal.strMeal}" />
+                  <p><strong>Category:</strong> ${meal.strCategory}</p>
+                  <p><strong>Instructions:</strong> ${meal.strInstructions.substring(0, 200)}...</p>
+                </div>
+              `;
+            });
+
+            resultDiv.innerHTML = recipeHTML;
+          } else {
+            resultDiv.innerHTML = `<p class="error">No recipes found for "${food}".</p>`;
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          resultDiv.innerHTML = `<p class="error">Something went wrong. Please try again later.</p>`;
+        });
+    }
+  </script>
+</body>
+</html>
